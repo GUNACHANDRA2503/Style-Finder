@@ -3,7 +3,7 @@ Configuration settings for the Style Finder application.
 """
 
 # Model and API configuration
-LLAMA_MODEL_ID = "meta-llama/llama-3-2-90b-vision-instruct"
+LLAMA_MODEL_ID = "gpt-4o-mini"
 PROJECT_ID = "skills-network"  # Default project ID for lab environment
 REGION = "us-south"
 

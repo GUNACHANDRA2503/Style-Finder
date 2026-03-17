@@ -20,11 +20,14 @@ def get_all_items_for_image(image_url, dataset):
     Returns:
         DataFrame: All items related to the image
     """
-    # TODO: Find all items related to the image URL in the dataset
+    #  Find all items related to the image URL in the dataset
     
-    # TODO: Log the number of items found
+    #  Log the number of items found
     
-    # TODO: Return the related items
+    #  Return the related items
+    related_items = dataset[dataset['Image URL'] == image_url]
+    logger.info(f"Found {len(related_items)} items related to image URL: {image_url}")
+    return related_items
 
 def format_alternatives_response(user_response, alternatives, similarity_score, threshold=0.8):
     """
@@ -39,15 +42,44 @@ def format_alternatives_response(user_response, alternatives, similarity_score, 
     Returns:
         str: Enhanced response with alternatives
     """
-    # TODO: Check if user_response is problematic and create basic response if needed
+    #  Check if user_response is problematic and create basic response if needed
     
-    # TODO: Add section header based on similarity score
+    #  Add section header based on similarity score
     
-    # TODO: Count items and enforce maximum limit
+    #  Count items and enforce maximum limit
     
-    # TODO: Format each alternative item with proper Markdown
+    #  Format each alternative item with proper Markdown
     
-    # TODO: Return the enhanced response
+    #  Return the enhanced response
+    # Check if user_response is problematic
+    if not user_response or any(phrase in user_response for phrase in [
+            "I'm not able to provide", 
+            "I cannot", 
+            "I apologize, but", 
+            "I don't feel comfortable"]):
+        # Create a basic response if the model refused
+        user_response = "## Fashion Analysis Results\n\nHere are the items detected in your image:"
+    
+    if similarity_score >= threshold:
+        enhanced_response = user_response + "\n\n## Similar Items Found\n\nHere are some similar items we found:\n"
+    else:
+        enhanced_response = user_response + "\n\n## Similar Items Found\n\nHere are some visually similar items:\n"
+    
+    # Count items added to ensure we're not exceeding reasonable limits
+    items_added = 0
+    max_items = 10
+    
+    for item, alts in alternatives.items():
+        enhanced_response += f"\n### {item}:\n"
+        if alts:
+            for alt in alts[:3]:  # Limit to 3 alternatives per item
+                if items_added < max_items:
+                    enhanced_response += f"- {alt['title']} for {alt['price']} from {alt['source']} ([Buy it here]({alt['link']}))\n"
+                    items_added += 1
+        else:
+            enhanced_response += "- No alternatives found.\n"
+    
+    return enhanced_response
 
 def process_response(response: str) -> str:
     """
